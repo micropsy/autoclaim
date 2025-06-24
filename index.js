@@ -1,60 +1,54 @@
-// File: index.js
-const puppeteer = require('puppeteer');
-const TelegramBot = require('node-telegram-bot-api');
 require('dotenv').config();
+const puppeteer = require('puppeteer');
+const fetch = require('node-fetch');
 
 const TELEGRAM_TOKEN = process.env.BOT_TOKEN;
-const CHAT_ID = process.env.CHAT_ID;
-const CLAIM_URL = 'https://freebitco.in';
-
-const bot = new TelegramBot(TELEGRAM_TOKEN);
+const TELEGRAM_CHAT_ID = process.env.CHAT_ID;
+const SITE_URL = "https://freebitco.in";
+const INTERVAL = 60 * 60 * 1000; // 1 hour
 
 async function sendTelegram(message) {
-  try {
-    await bot.sendMessage(CHAT_ID, `[Freebitco.in Bot]\n${message}`);
-    console.log("[Telegram] Sent: " + message);
-  } catch (e) {
-    console.error("[Telegram] Failed to send message", e);
-  }
+  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+  await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: TELEGRAM_CHAT_ID,
+      text: `[Freebitco.in Bot]\n${message}`
+    })
+  }).catch(console.error);
 }
 
 async function autoClaim() {
-  const browser = await puppeteer.launch({ headless: true, args: ['--no-sandbox'] });
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
+
   const page = await browser.newPage();
+  await page.goto(SITE_URL, { waitUntil: 'networkidle2' });
 
   try {
-    await page.goto(CLAIM_URL, { waitUntil: 'networkidle2' });
-    console.log("[Bot] Opened freebitco.in");
-
-    // Wait & click "Verify you are human"
-    const verifyBtn = await page.$("input[value='Verify you are human']");
-    if (verifyBtn) {
-      await verifyBtn.click();
-      console.log("[Bot] Clicked verify button");
+    const verifyButton = await page.$("input[value='Verify you are human']");
+    if (verifyButton) {
+      await verifyButton.click();
       await page.waitForTimeout(10000);
-    } else {
-      throw new Error("Verify button not found");
     }
 
-    // Click the roll button
-    const rollBtn = await page.$("#free_play_form_button");
-    if (rollBtn) {
-      await rollBtn.click();
-      console.log("[Bot] Claimed!");
-      await sendTelegram("✅ Successfully claimed at " + new Date().toLocaleTimeString());
+    const claimButton = await page.$("#free_play_form_button");
+    if (claimButton) {
+      await claimButton.click();
+      await page.waitForTimeout(10000);
+      await sendTelegram("✅ Claimed successfully at " + new Date().toLocaleTimeString());
     } else {
-      throw new Error("Claim button not found");
+      await sendTelegram("⚠️ Claim button not found");
     }
-  } catch (err) {
-    console.error("[Bot] Error:", err.message);
-    await sendTelegram("⚠️ Claim failed: " + err.message);
+  } catch (e) {
+    await sendTelegram("❌ Error during claim: " + e.message);
   } finally {
     await browser.close();
   }
 }
 
-// Run once on start
 autoClaim();
-
-// Re-run every hour
-setInterval(autoClaim, 60 * 60 * 1000);
+setInterval(autoClaim, INTERVAL);
