@@ -1,0 +1,14 @@
+{
+  "name": "autoclaim",
+  "version": "1.0.0",
+  "description": "Freebitco.in auto claim bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "puppeteer": "^21.3.8",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^3.3.2"
+  }
+}
