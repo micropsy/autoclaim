@@ -1,41 +1,35 @@
-require('dotenv').config();
-const puppeteer = require('puppeteer');
-const fetch = require('node-fetch');
+// Use ES Module syntax only
+import puppeteer from 'puppeteer';
+import fetch from 'node-fetch';
+import dotenv from 'dotenv';
 
+dotenv.config();
+
+// Constants
 const TELEGRAM_TOKEN = process.env.BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.CHAT_ID;
 const SITE_URL = "https://freebitco.in";
 const INTERVAL = 60 * 60 * 1000; // 1 hour
 
-import puppeteer from 'puppeteer';
-import dotenv from 'dotenv';
-import fetch from 'node-fetch';
-dotenv.config();
-
-// Sample action
-(async () => {
-  const browser = await puppeteer.launch({ headless: "new" });
-  const page = await browser.newPage();
-  await page.goto('https://freebitco.in');
-
-  // Add your automation steps here...
-
-  await browser.close();
-})();
-
-
+// Telegram notifier
 async function sendTelegram(message) {
   const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
-  await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: TELEGRAM_CHAT_ID,
-      text: `[Freebitco.in Bot]\n${message}`
-    })
-  }).catch(console.error);
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text: `[Freebitco.in Bot]\n${message}`
+      })
+    });
+    console.log("✅ Telegram sent");
+  } catch (e) {
+    console.error("❌ Telegram error:", e.message);
+  }
 }
 
+// Auto claim function
 async function autoClaim() {
   const browser = await puppeteer.launch({
     headless: true,
@@ -67,7 +61,8 @@ async function autoClaim() {
   }
 }
 
+// Initial run
 autoClaim();
+
+// Run every hour
 setInterval(autoClaim, INTERVAL);
-
-
