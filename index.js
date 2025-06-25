@@ -7,6 +7,23 @@ const TELEGRAM_CHAT_ID = process.env.CHAT_ID;
 const SITE_URL = "https://freebitco.in";
 const INTERVAL = 60 * 60 * 1000; // 1 hour
 
+import puppeteer from 'puppeteer';
+import dotenv from 'dotenv';
+import fetch from 'node-fetch';
+dotenv.config();
+
+// Sample action
+(async () => {
+  const browser = await puppeteer.launch({ headless: "new" });
+  const page = await browser.newPage();
+  await page.goto('https://freebitco.in');
+
+  // Add your automation steps here...
+
+  await browser.close();
+})();
+
+
 async function sendTelegram(message) {
   const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
   await fetch(url, {
@@ -52,3 +69,5 @@ async function autoClaim() {
 
 autoClaim();
 setInterval(autoClaim, INTERVAL);
+
+
