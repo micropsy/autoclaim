@@ -2,12 +2,12 @@ services:
   - type: web
     name: autoclaim
     env: node
-    plan: free
-    buildCommand: "npm install"
-    startCommand: "npm start"
-    autoDeploy: true
+    buildCommand: npm install
+    startCommand: node index.js
     envVars:
       - key: BOT_TOKEN
-        sync: false
+        fromEnvVar: BOT_TOKEN
       - key: CHAT_ID
-        sync: false
+        fromEnvVar: CHAT_ID
+      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+        value: true
