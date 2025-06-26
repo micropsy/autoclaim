@@ -1,12 +1,13 @@
 {
-  "name": "autoclaim",
+  "name": "autoclaim-bot",
   "version": "1.0.0",
-  "description": "Auto claim script for Freebitco.in on Render VPS",
+  "description": "Freebitco.in Auto Claim Bot",
   "main": "index.js",
-  "type": "module",
   "scripts": {
-    "build": "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm install",
     "start": "node index.js"
+  },
+  "engines": {
+    "node": "18.x"
   },
   "dependencies": {
     "puppeteer": "^21.3.8",
