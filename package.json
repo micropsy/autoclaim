@@ -5,6 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "build": "PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true npm install",
     "start": "node index.js"
   },
   "dependencies": {
