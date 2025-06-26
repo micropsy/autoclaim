@@ -1,5 +1,5 @@
 {
-  "name": "autoclaim-bot",
+  "name": "autoclaim",
   "version": "1.0.0",
   "description": "Freebitco.in Auto Claim Bot",
   "main": "index.js",
